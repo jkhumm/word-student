@@ -90,6 +90,16 @@
         </dependencies>
     </dependencyManagement>
 
+    <!-- omitted xml -->
+    <distributionManagement>
+        <repository>
+            <!--必须与 settings.xml 的 id 一致-->
+            <id>modily-maven-maven_build</id>
+            <name>maven_build</name>
+            <url>https://modily-maven.pkg.coding.net/repository/maven/maven_build/</url>
+        </repository>
+    </distributionManagement>
+
     <build>
         <plugins>
             <plugin>
