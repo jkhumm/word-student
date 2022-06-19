@@ -1,0 +1,26 @@
+server:
+  port: 9000
+  servlet:
+    context-path: /api/app
+
+spring:
+  application:
+    name: service-mode-app
+  profiles:
+    active: dev
+knife4j:
+  enable: true
+
+---
+spring:
+  profiles: dev
+
+
+
+---
+spring:
+  profiles: prod
+
+# 生产环境停用swg
+knife4j:
+  production: true
