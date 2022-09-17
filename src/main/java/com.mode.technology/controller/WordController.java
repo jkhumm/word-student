@@ -11,14 +11,12 @@ import com.mode.technology.vo.tip.Tip;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import javax.annotation.PostConstruct;
 import javax.annotation.Resource;
 import javax.validation.Valid;
+import java.util.ArrayList;
 
 
 @RestController
@@ -50,6 +48,18 @@ public class WordController {
         user.setMobile("13888888888");
         user.setId(1L);
         redisUtil.set(RedisConstant.TOKEN + "humingming", JSON.toJSONString(user));
+    }
+
+    @ApiOperation(value = "验证oom")
+    @GetMapping("/demo/oom")
+    public Tip wordQuery() {
+        int length = 1024*1024*100;// 100M
+        ArrayList<Byte[]> list = new ArrayList();
+        for (int i = 0; i < 1000; i++) {
+            Byte[] b1 = new Byte[length];
+            list.add(b1);
+        }
+        return null;
     }
 
 
