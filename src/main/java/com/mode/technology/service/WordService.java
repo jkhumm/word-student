@@ -20,7 +20,7 @@ public class WordService {
     @Resource
     private CustomerService customerService;
 
-    public Tip wordQuery(WordQueryReq req) {
+    public Tip<List<Customer>> wordQuery(WordQueryReq req) {
         List<Customer> list = customerService.lambdaQuery().list();
         return TipUtil.success(list);
     }
