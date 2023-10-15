@@ -14,22 +14,79 @@ knife4j:
 ---
 spring:
   profiles: dev
-  datasource:
-    driverClassName: com.mysql.cj.jdbc.Driver
-    url: jdbc:mysql://101.34.86.4:4307/word-center?autoReconnect=true&useUnicode=true&characterEncoding=utf-8&allowMultiQueries=true&zeroDateTimeBehavior=convertToNull&useSSL=false&serverTimezone=GMT%2B8
-    username: admin
-    password: 123456
-    type: com.zaxxer.hikari.HikariDataSource
-    hikari:
-      minimum-idle: 10
-      maximum-pool-size: 30
-      auto-commit: true
-      idle-timeout: 30000
-      pool-name: HikariCP
-      max-lifetime: 900000
-      connection-timeout: 10000
-      connection-test-query: SELECT 1
-      validation-timeout: 1000
+  #  datasource:
+  #    driverClassName: com.mysql.cj.jdbc.Driver
+  #    url: jdbc:mysql://101.34.86.4:4307/word-center?autoReconnect=true&useUnicode=true&characterEncoding=utf-8&allowMultiQueries=true&zeroDateTimeBehavior=convertToNull&useSSL=false&serverTimezone=GMT%2B8
+  #    username: admin
+  #    password: 123456
+  #    type: com.zaxxer.hikari.HikariDataSource
+  #    hikari:
+  #      minimum-idle: 10
+  #      maximum-pool-size: 30
+  #      auto-commit: true
+  #      idle-timeout: 30000
+  #      pool-name: HikariCP
+  #      max-lifetime: 900000
+  #      connection-timeout: 10000
+  #      connection-test-query: SELECT 1
+  #      validation-timeout: 1000
+  main:
+    allow-bean-definition-overriding: true
+  shardingsphere:
+    props:
+      sql:
+        show: true
+    datasource:
+      # SpringBootConfiguration 配置
+      names: word-center,db0,db1,db2
+      word-center:
+        type: com.zaxxer.hikari.HikariDataSource
+        driver-class-name: com.mysql.jdbc.Driver
+        jdbc-url: jdbc:mysql://101.34.86.4:4307/word-center?autoReconnect=true&useUnicode=true&characterEncoding=utf-8&allowMultiQueries=true&zeroDateTimeBehavior=convertToNull&useSSL=false&serverTimezone=GMT%2B8
+        username: admin
+        password: 123456
+      db0:
+        type: com.zaxxer.hikari.HikariDataSource
+        driver-class-name: com.mysql.cj.jdbc.Driver
+        jdbc-url: jdbc:mysql://101.34.86.4:4307/db0?autoReconnect=true&useUnicode=true&characterEncoding=utf-8&allowMultiQueries=true&zeroDateTimeBehavior=convertToNull&useSSL=false&serverTimezone=GMT%2B8
+        username: admin
+        password: 123456
+      db1:
+        type: com.zaxxer.hikari.HikariDataSource
+        driver-class-name: com.mysql.cj.jdbc.Driver
+        jdbc-url: jdbc:mysql://101.34.86.4:4307/db1?useUnicode=true&characterEncoding=utf-8&useSSL=false&serverTimezone=Asia/Shanghai&allowPublicKeyRetrieval=true
+        username: admin
+        password: 123456
+      db2:
+        type: com.zaxxer.hikari.HikariDataSource
+        driver-class-name: com.mysql.cj.jdbc.Driver
+        jdbc-url: jdbc:mysql://101.34.86.4:4307/db2?useUnicode=true&characterEncoding=utf-8&useSSL=false&serverTimezone=Asia/Shanghai&allowPublicKeyRetrieval=true
+        username: admin
+        password: 123456
+    sharding:
+      default-data-source-name: word-center
+      tables:
+        t_order:
+          # 行表达式标识符可以使用${...}或$->{...}，但前者与Spring本身的属性文件占位符冲突，因此在Spring环境中使用行表达式标识符建议使用$->{...}
+          # 数据节点：多数据源如  db$->{0..1}.t_order_$->{0..2}  order-$->{['bj','sh','sz']}.t_order_$->{0..2}
+          actual-data-nodes: db$->{0..2}.t_order_$->{0..1}
+          database-strategy:   # 拆分库策略
+            inline:
+              sharding-column: zone    # 分片字段
+              algorithm-expression: |
+                if zone == 'bj' then 'db0'
+                elif zone == 'sh' then 'db1'
+                elif zone == 'sz' then 'db2'
+                else 'db0'
+          table-strategy:    # 拆分表策略
+              inline:
+                sharding-column: user_id    # 分片字段（分片键）
+                algorithm-expression: t_order_$->{user_id % 3} # 分片算法表达式
+              key-generator:
+                column: order_id  # 主键ID
+                type: SNOWFLAKE  # 生成策略
+
+
   redis:
     database: 0
     host: 101.34.86.4
@@ -42,6 +99,12 @@ spring:
         max-idle: 30
         max-active: 8
         max-wait: 60000
+
+mybatis-plus:
+  configuration:
+    log-impl: org.apache.ibatis.logging.stdout.StdOutImpl
+  mapper-locations: classpath:mapper/*.xml
+
 # 暴露的统计节点，可访问 http://localhost:8081/actuator/prometheus
 management:
   server:
