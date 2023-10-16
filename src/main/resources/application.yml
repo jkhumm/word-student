@@ -37,30 +37,30 @@ spring:
       sql:
         show: true
     datasource:
-      # SpringBootConfiguration 配置
-      names: word-center,db0,db1,db2
+      # 参考：SpringBootConfiguration 配置，配置的别名
+      names: word-center,db-bj,db-sh,db-sz
       word-center:
         type: com.zaxxer.hikari.HikariDataSource
         driver-class-name: com.mysql.jdbc.Driver
         jdbc-url: jdbc:mysql://101.34.86.4:4307/word-center?autoReconnect=true&useUnicode=true&characterEncoding=utf-8&allowMultiQueries=true&zeroDateTimeBehavior=convertToNull&useSSL=false&serverTimezone=GMT%2B8
         username: admin
         password: 123456
-      db0:
+      db-bj:
         type: com.zaxxer.hikari.HikariDataSource
         driver-class-name: com.mysql.cj.jdbc.Driver
-        jdbc-url: jdbc:mysql://101.34.86.4:4307/db0?autoReconnect=true&useUnicode=true&characterEncoding=utf-8&allowMultiQueries=true&zeroDateTimeBehavior=convertToNull&useSSL=false&serverTimezone=GMT%2B8
+        jdbc-url: jdbc:mysql://101.34.86.4:4307/order_bj?autoReconnect=true&useUnicode=true&characterEncoding=utf-8&allowMultiQueries=true&zeroDateTimeBehavior=convertToNull&useSSL=false&serverTimezone=GMT%2B8
         username: admin
         password: 123456
-      db1:
+      db-sh:
         type: com.zaxxer.hikari.HikariDataSource
         driver-class-name: com.mysql.cj.jdbc.Driver
-        jdbc-url: jdbc:mysql://101.34.86.4:4307/db1?useUnicode=true&characterEncoding=utf-8&useSSL=false&serverTimezone=Asia/Shanghai&allowPublicKeyRetrieval=true
+        jdbc-url: jdbc:mysql://101.34.86.4:4307/order_sh?useUnicode=true&characterEncoding=utf-8&useSSL=false&serverTimezone=Asia/Shanghai&allowPublicKeyRetrieval=true
         username: admin
         password: 123456
-      db2:
+      db-sz:
         type: com.zaxxer.hikari.HikariDataSource
         driver-class-name: com.mysql.cj.jdbc.Driver
-        jdbc-url: jdbc:mysql://101.34.86.4:4307/db2?useUnicode=true&characterEncoding=utf-8&useSSL=false&serverTimezone=Asia/Shanghai&allowPublicKeyRetrieval=true
+        jdbc-url: jdbc:mysql://101.34.86.4:4307/order_sz?useUnicode=true&characterEncoding=utf-8&useSSL=false&serverTimezone=Asia/Shanghai&allowPublicKeyRetrieval=true
         username: admin
         password: 123456
     sharding:
@@ -68,23 +68,19 @@ spring:
       tables:
         t_order:
           # 行表达式标识符可以使用${...}或$->{...}，但前者与Spring本身的属性文件占位符冲突，因此在Spring环境中使用行表达式标识符建议使用$->{...}
-          # 数据节点：多数据源如  db$->{0..1}.t_order_$->{0..2}  order-$->{['bj','sh','sz']}.t_order_$->{0..2}
-          actual-data-nodes: db$->{0..2}.t_order_$->{0..1}
+          # 数据节点：多数据源如  db$->{0..1}.t_order_$->{0..2}  db-$->{['bj','sh','sz']}.t_order_$->{0..1}
+          actual-data-nodes: db-$->{['bj','sh','sz']}.t_order_$->{0..1}
           database-strategy:   # 拆分库策略
-            inline:
-              sharding-column: zone    # 分片字段
-              algorithm-expression: |
-                if zone == 'bj' then 'db0'
-                elif zone == 'sh' then 'db1'
-                elif zone == 'sz' then 'db2'
-                else 'db0'
+            standard:
+              sharding-column: zone    # 分片字段  standard 精确分片算法类名称，用于=和IN
+              precise-algorithm-class-name: com.mode.technology.config.MyShardingDatabaseAlgorithm
           table-strategy:    # 拆分表策略
               inline:
                 sharding-column: user_id    # 分片字段（分片键）
-                algorithm-expression: t_order_$->{user_id % 3} # 分片算法表达式
-              key-generator:
-                column: order_id  # 主键ID
-                type: SNOWFLAKE  # 生成策略
+                algorithm-expression: t_order_$->{user_id % 2} # 分片算法表达式
+          key-generator: # 自增列名称，缺省表示不使用自增主键生成器
+            column: order_id
+            type: SNOWFLAKE
 
 
   redis:
