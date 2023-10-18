@@ -65,6 +65,28 @@ public class TestController {
         return TipUtil.success(orders);
     }
 
+    @ApiOperation(value = "测试分库分表插入-local事务")
+    @WithoutLogin
+    @GetMapping("/addTransactional")
+   // @Transactional
+   // @ShardingTransactionType(value = TransactionType.XA)
+    public Tip<Void> addTransactional() {
+        TOrder order = new TOrder();
+        order.setUserId(10);
+        order.setZone("bj");
+        torderDao.insertSelective(order);
 
+        TOrder order1 = new TOrder();
+        order1.setUserId(10);
+        order1.setZone("sh");
+        torderDao.insertSelective(order1);
+
+        TOrder order2 = new TOrder();
+        order2.setUserId(10);
+        order2.setZone("sz");
+        torderDao.insertSelective(order2);
+        int a = 1/0;
+        return TipUtil.success();
+    }
 
 }
