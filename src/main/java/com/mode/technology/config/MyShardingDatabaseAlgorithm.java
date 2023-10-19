@@ -21,10 +21,10 @@ public class MyShardingDatabaseAlgorithm implements PreciseShardingAlgorithm<Str
             for (String databaseSource : collection) {
                 // 获取分片键的值
                 String value = preciseShardingValue.getValue();
-                log.info("分片键的值:{},逻辑表:{}", value, preciseShardingValue.getLogicTableName());
+                //log.info("分片键的值:{},逻辑表:{}", value, preciseShardingValue.getLogicTableName());
                 // 如果遍历的数据库包含了我们的区域码就直接返回
                 if (databaseSource.contains(value)) {
-                    log.info("数据库为：" + databaseSource);
+                    log.info("执行sql实际数据库为：" + databaseSource);
                     return databaseSource;
                 }
             }

@@ -34,7 +34,7 @@ public class AuthAspect extends HandlerInterceptorAdapter {
     private RedisUtil redisUtil;
 
     // 对接口设置拦截切点
-    @Pointcut("execution(* com.mode.technology.controller..*.*(..))")
+    @Pointcut("execution(* com.mode.technology.controller..*.*(..)))")
     public void aspect() {
     }
 
@@ -56,11 +56,13 @@ public class AuthAspect extends HandlerInterceptorAdapter {
             }
         }
         MethodSignature signature = (MethodSignature) point.getSignature();
-        Method method = signature.getMethod();
-        WithoutLogin withoutLogin = method.getDeclaredAnnotation(WithoutLogin.class);
-        // 未携带此接口 提示错误
-        if (null == withoutLogin && null == rc.getUid()) {
-            throw new CustomException(HttpCodeEnum.USERNAME_OR_PASSWORD_ERR);
+        if (signature.getClass().getDeclaredAnnotation(WithoutLogin.class) == null) {
+            Method method = signature.getMethod();
+            WithoutLogin withoutLogin = method.getDeclaredAnnotation(WithoutLogin.class);
+            // 未携带此接口 提示错误
+            if (null == withoutLogin && null == rc.getUid()) {
+                throw new CustomException(HttpCodeEnum.USERNAME_OR_PASSWORD_ERR);
+            }
         }
         return point.proceed();
     }

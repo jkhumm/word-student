@@ -6,6 +6,7 @@ import com.mode.technology.annotation.MyMonitor;
 import com.mode.technology.annotation.WithoutLogin;
 import com.mode.technology.constants.RedisConstant;
 import com.mode.technology.mybatis.entity.Customer;
+import com.mode.technology.mybatis.entity.OoMTest;
 import com.mode.technology.service.WordService;
 import com.mode.technology.util.RedisUtil;
 import com.mode.technology.vo.beans.UserBean;
@@ -64,14 +65,13 @@ public class WordController {
         redisUtil.set(RedisConstant.TOKEN + "humingming", JSON.toJSONString(user));
     }
 
+    static List<OoMTest> ooMTestList = new ArrayList<>();
+
     @ApiOperation(value = "验证oom")
     @GetMapping("/demo/oom")
     public Tip wordQuery() {
-        int length = 1024*1024*100;// 100M
-        ArrayList<Byte[]> list = new ArrayList();
         for (int i = 0; i < 1000; i++) {
-            Byte[] b1 = new Byte[length];
-            list.add(b1);
+            ooMTestList.add(new OoMTest());
         }
         return TipUtil.success("success");
     }

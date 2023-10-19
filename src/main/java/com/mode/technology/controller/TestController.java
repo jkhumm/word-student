@@ -11,6 +11,7 @@ import com.mode.technology.vo.tip.TipUtil;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -25,6 +26,7 @@ import java.util.List;
 @RequestMapping("/test")
 @Slf4j
 @Api(tags = "测试专用")
+@WithoutLogin
 public class TestController {
 
     @Resource
@@ -35,7 +37,6 @@ public class TestController {
 
 
     @ApiOperation(value = "测试新增 正常数据")
-    @WithoutLogin
     @GetMapping("/addNormal")
     public Tip<Void> addNormal() {
         Customer customer = new Customer();
@@ -47,7 +48,6 @@ public class TestController {
     }
 
     @ApiOperation(value = "测试分库分表插入")
-    @WithoutLogin
     @GetMapping("/add")
     public Tip<Void> add(@RequestParam Integer userId, @RequestParam String zone) {
         TOrder order = new TOrder();
@@ -58,7 +58,6 @@ public class TestController {
     }
 
     @ApiOperation(value = "测试分库分表查询")
-    @WithoutLogin
     @GetMapping("/selectAll")
     public Tip<List<TOrder>> selectAll() {
         List<TOrder> orders = torderDao.selectByExample(null);
@@ -66,9 +65,8 @@ public class TestController {
     }
 
     @ApiOperation(value = "测试分库分表插入-local事务")
-    @WithoutLogin
     @GetMapping("/addTransactional")
-   // @Transactional
+    @Transactional
    // @ShardingTransactionType(value = TransactionType.XA)
     public Tip<Void> addTransactional() {
         TOrder order = new TOrder();
