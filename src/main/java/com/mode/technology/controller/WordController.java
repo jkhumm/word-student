@@ -28,6 +28,7 @@ import java.util.List;
 @RestController
 @RequestMapping("/word")
 @Slf4j
+@WithoutLogin
 @MyMonitor
 @Api(tags = "调试专用")
 public class WordController {
@@ -47,7 +48,6 @@ public class WordController {
     }
 
     @ApiOperation(value = "测试prometheus")
-    @WithoutLogin
     @GetMapping("/prometheusTest")
     public Tip<Void> prometheusTest() {
         log.info("测试prometheus");
@@ -73,8 +73,9 @@ public class WordController {
         for (int i = 0; i < 1000; i++) {
             ooMTestList.add(new OoMTest());
         }
-        return TipUtil.success("success");
+        return TipUtil.success();
     }
+
 
 
 }
